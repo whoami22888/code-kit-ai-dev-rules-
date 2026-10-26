@@ -40,7 +40,7 @@ add('AGENTS.md', has('AGENTS.md') ? 'pass' : 'fail', has('AGENTS.md')
 
 if (self) {
   for (const rel of ['package.json', 'bin/code-kit.mjs', 'bin/code-kit-ai.mjs',
-    '.agents/skills/code-kit-verification/SKILL.md', 'docs/openai-integration.md']) {
+    '.agents/skills/code-kit-verification/SKILL.md', 'docs/openai-integration.md', 'templates/openai/node-project.code-kit.json']) {
     add(rel, has(rel) ? 'pass' : 'fail', has(rel) ? 'Present' : 'Required integration file missing');
   }
 } else {
