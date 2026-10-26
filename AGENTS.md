@@ -1,39 +1,53 @@
-# Working on code-kit
+# AI developer rules — ChatGPT, Codex and Claude Code
 
-code-kit is a Claude Code plugin: hooks (`hooks/`), skills (`skills/<name>/SKILL.md`), templates (`templates/`) and a command line (`bin/code-kit.mjs`). It's plain Node ESM with no dependencies and no build step. Node 22 or later.
+This repository is a **Node 22+ ESM rules engine and CLI**. Claude Code hooks are one integration; ChatGPT and Codex use the same verified rules through `AGENTS.md`, a repository skill and the CLI/CI. Do not claim that ChatGPT or Codex automatically executes Claude hooks.
 
-## Layout
+## Start here
 
-- `hooks/*.mjs`: one file per hook event, wired in `hooks/hooks.json` (`guard-agent.mjs` claims a lane as its agent starts; `session.mjs` records a session as the lead or a working one as it starts, and frees its lanes as it ends). Each reads the tool call from stdin, and exits 2 with a message to refuse it. `act.mjs` writes the event log: each tool call before and after it runs, and a lane agent handing back (spec 26).
-- `hooks/lib/`: the shared rules.
-  - `rules.mjs`: who may write where;
-  - `config.mjs`: loading and validation;
-  - `layers.mjs`: imports;
-  - `dependencies.mjs`: the packages a command adds, and the files installing them changes;
-  - `registry.mjs`: what the npm registry says about a package, for delegated approvals;
-  - `security.mjs`: which branches the security reviewer looks at, and why (spec 17, ONB-7);
-  - `regression.mjs`: weakened tests, and whether a fix's tests prove its bug (spec 18, REG-1 and REG-2);
-  - `harness.mjs`: the harness settings; `queue.mjs`: the merge queue; `loop-state.mjs`: whether the loop is paused, and which session runs it; `storymap.mjs`: a story's code by layer, and each requirement's trail; `timeline.mjs`: when each story's work happened; `instructions.mjs`: code-kit's own part of CLAUDE.md and the lane agents, rendered from the templates and kept current (spec 17, ONB-8); `journal.mjs`: the build's lineage, from the request to each merge; `team.mjs`: the team in the config, who the developer is, the team provider (GitHub's built in) and the team's rules for the hooks (spec 16); `teamfacts.mjs`: the pure parts the mod shares;
-  - `laneclaims.mjs`: which lane is running which story, one each across every session (spec 23, SCHED-1); `schedule.mjs`: one story for each free lane, the open slice's first (SCHED-1, SCHED-2), and the model its size gives (SCHED-3); `dispatches.mjs`: each story's model from the plan, the specs and the reviews, and the log of what each lane agent started on (SCHED-3); `decisionstore.mjs`: the decisions waiting on the person, each owned by the session that raised it (OWN-1 to OWN-4); `sessions.mjs`: the sessions working the project, which one leads, each one's task and what it wrote in the shared checkout (SESS-1 to SESS-5); `worktrees.mjs`: the project's worktrees, why each stays, and taking away the ones done with (spec 20, LEAN-6 and LEAN-8);
-  - `standards.mjs`: the project's standards, merged with an organisation's, what's wrong with them, which standard a refusal's rule is, and what weakens them (spec 22); `snapshot.mjs`: what a project reports to its team provider, and the allow-list a report is checked against (spec 21);
-  - `events.mjs`: the event log of every act, per story, its replay, reconciling what a stopped agent left open, and the hand-over brief (spec 26, DUR-1 to DUR-6); `publish.mjs`: what's merged, put onto the remote's base, pushed or as a pull request (MQ-6);
-  - `ci.mjs`: what the project's workflows run per story, what its Actions runs cost, and the release branch the full CI runs on (spec 25);
-  - `checks.mjs`, `verify.mjs`, `plan.mjs`, `trace.mjs`, `next.mjs` (what to do next, including companions to set up and designs before screens, spec 17);
-  - `adapters/`: tools that share a project, such as Context Graph.
-- `hooks/mod/`: the mod, for Claude Code 2.1.287 or later: `register.mjs` (its hooks and the person's acts), and what it draws and decides, as pure functions:
-  - `board.mjs`: the pane of panels (Build, Needs you, Lanes, Queue, Log), the band, the keys, the layouts and the one table of state words, colours and glyphs (spec 27);
-  - `characters.mjs`: each lane's character from its name, in every pose and move; `surface/`: the surface modules that animate on the surface's own frame clock (`character.mjs`, `clock.mjs`, `rail.mjs`);
-  - `view.mjs` (the project's state and the band's lines), `panes.mjs` (the full views: a story, the Trail, the Code map, the decisions and the Journal), `art.mjs` (half-block cells and the timelines), `loop.mjs`, `hold.mjs`, `review.mjs`, `mission.mjs` (the milestone and the next step), `codemap.mjs` (the code map), `trail.mjs` (the trail), `decisions.mjs` (each decision that needs the person, with its lineage, and how Claude Code's question dialog asks it), `teamview.mjs` (the team's band lines and the Team pane);
-  - `register.test.ts` (run by `claude plugin test`, through `test/mod.mjs`). It reads the CLI's JSON and never enforces anything.
-- `bin/code-kit.mjs`: the CLI (`check`, `who`, `unowned`, `diff`, `baseline`, `graph`, `verify`, `security`, `status`, `next`, `instructions`, `standards`, `worktrees`, `adapters`, `trace`, `approve`, `merge`, `requests`, `stops`, `sent-back`, `settings`, `lanes`, `sessions`, `task`, `decisions`, `hold`, `queue`, `story`, `timeline`, `loop`, `map`, `trail`, `journal`, `team`, `intend`, `ci`, `release`, `publish`, `replay`, `reconcile`).
-- `skills/`: instructions for Claude, not code. They call the CLI as `node "${CLAUDE_PLUGIN_ROOT}/bin/code-kit.mjs"`.
-- `test/units.test.mjs` (pure functions), `test/hooks.test.mjs` (every hook end to end in throwaway git repositories), `test/fixture.json` (the config they use), `test/mod.mjs` (the mod's tests, skipped on older Claude Code).
+- Inspect `package.json`, the applicable files and relevant tests. Read additional docs only when the task requires them.
+- Before changes, record the branch, exact HEAD SHA and existing work. Keep each task's edits minimal; preserve unrelated work.
+- For repository policy or OpenAI workflow changes, read `docs/openai-integration.md` and use `.agents/skills/code-kit-verification/SKILL.md` when available.
+- For hook/CLI changes, inspect only the affected modules in `hooks/lib/`, `hooks/`, `bin/` and relevant tests.
+- For any change to rules semantics, compare CLI and hook behavior. Keep one authoritative enforcement implementation instead of duplicating policy across tool-specific adapters.
 
-## Rules
+## Architecture and ownership
 
-- Run `npm test` before finishing. Every behaviour change gets an end-to-end check in `test/hooks.test.mjs`.
-- Format with Prettier (`npx prettier --check .`).
-- The core never names another tool: tool-specific rules belong in `hooks/lib/adapters/`.
-- Refusals say why, and what to do instead, in plain sentences an agent can act on.
-- Keep the README's config table and CLI list in step with the code.
-- Every release adds an entry at the top of `CHANGELOG.md`: the version, the date, and what changed for someone using code-kit, in plain sentences. The GitHub Release notes use the same text.
+- `hooks/lib/`: shared rules, configuration, imports/layers, security, approvals, verification, queue and evidence.
+- `hooks/*.mjs` and `hooks/hooks.json`: Claude Code integration, retaining existing compatibility.
+- `hooks/mod/`: Claude UI integration. The UI is not a substitute for verification.
+- `bin/code-kit.mjs`: existing universal CLI; `bin/code-kit-ai.mjs`: cross-agent CLI entry point.
+- `scripts/agent-doctor.mjs`: read-only environment/project contract diagnostics.
+- `.agents/skills/code-kit-verification/`: on-demand Codex/ChatGPT-compatible workflow guidance.
+- `templates/`: templates for downstream projects; `test/`: unit and end-to-end regression tests.
+
+### Enforcement boundaries
+
+- An `AGENTS.md` or skill is **instructions**, not a sandbox or a pre-tool authorization hook.
+- GitHub Actions and `code-kit verify` provide independent checks on repository changes; a required gate must not be skipped or accepted as proof when it was not run.
+- Claude-specific pre-tool blocking exists only where Claude hooks are installed. Codex and ChatGPT cannot be assumed to have equivalent blocking.
+- Existing project configuration remains `.claude/code-kit.json` for backward compatibility. Never quietly migrate, rename or fork the rule schema. Run `code-kit-ai doctor` and `code-kit-ai check` before using rules against a downstream project.
+- Treat missing checks, missing tools, stale CI and stale reviews as unverified. Do not misreport them as passing.
+- Preserve attribution, the MIT licence and existing documented Claude usage.
+
+## Working procedure
+
+1. Identify the exact user request, affected paths and current commit; inspect source of truth and active PRs where relevant.
+2. Find the root cause. Prefer a focused fix over architecture changes or tests weakened to fit a result.
+3. Add a regression test for each behavioral change. Never hide test failures, remove required samples, relax thresholds or inflate timeouts.
+4. Run focused tests, then `npm test` for behavior changes. Run `npx prettier --check .` for format verification. For OpenAI entry-point changes, run `npm run test:openai` and `npm run agent:doctor:self`.
+5. For project branches with a valid configuration, run `node bin/code-kit-ai.mjs verify --base <base-ref>` at the exact head being reviewed; never claim this check passed for a branch where it could not run.
+6. Examine the actual diff, secret exposure and dependencies; report exact results. Code and CI evidence must apply to the current SHA. Do not merge until all applicable required gates are verified.
+7. Report: changed files, tests/checks run and results, exact SHA, blockers, and next improvement.
+
+## Core engineering constraints
+
+- No runtime dependencies or build step unless a change is explicitly justified. Node >=22 and ESM are the baseline.
+- Existing tests: `test/units.test.mjs` (pure behavior), `test/hooks.test.mjs` (real hooks against temporary Git repos), `test/mod.mjs` (Claude integration).
+- Changes to hook behavior require an end-to-end test in `test/hooks.test.mjs`; cross-agent behavior requires `test/openai-dev.test.mjs`.
+- Keep `README.md`, CLI help, `SECURITY.md` and templates accurate when interfaces or limitations change.
+- A release must update `CHANGELOG.md` with version/date/user-visible changes; no release version bump merely for a development PR.
+- Keep credentials out of prompts, commits, logs and workflow outputs. Never auto-deploy or trigger a merge on the strength of an AI message alone.
+
+## Review priorities
+
+Correctness and actual evidence come first: regressions, policy bypass, shell-command safety, protected-path logging, missing verification tools, configuration drift, branch ownership, stale approvals, and changed behavior without tests. Use precise file references and actionable remediation.
