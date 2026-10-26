@@ -34,7 +34,7 @@ This repository is a **Node 22+ ESM rules engine and CLI**. Claude Code hooks ar
 1. Identify the exact user request, affected paths and current commit; inspect source of truth and active PRs where relevant.
 2. Find the root cause. Prefer a focused fix over architecture changes or tests weakened to fit a result.
 3. Add a regression test for each behavioral change. Never hide test failures, remove required samples, relax thresholds or inflate timeouts.
-4. Run focused tests, then `npm test` for behavior changes. Run `npx prettier --check .` for format verification. For OpenAI entry-point changes, run `npm run test:openai` and `npm run agent:doctor:self`.
+4. Run focused tests, then `npm test` for behavior changes. Run `npx --yes prettier@3.9.10 --check .` for format verification. For OpenAI entry-point changes, run `npm run test:openai` and `npm run agent:doctor:self`.
 5. For project branches with a valid configuration, run `node bin/code-kit-ai.mjs verify --base <base-ref>` at the exact head being reviewed; never claim this check passed for a branch where it could not run.
 6. Examine the actual diff, secret exposure and dependencies; report exact results. Code and CI evidence must apply to the current SHA. Do not merge until all applicable required gates are verified.
 7. Report: changed files, tests/checks run and results, exact SHA, blockers, and next improvement.
