@@ -38,7 +38,7 @@ code-kit-ai check --json
 code-kit-ai verify --base origin/main --branch <actual-branch> --json
 ```
 
-Never run `verify` against an invented base or without a populated git history. `verify` checks tracked changes since the merge base and may list skipped checks: inspect `skipped` in JSON output and do not accept required skips. For pull requests, run it in a full checkout with base history available; inspect the current PR head and ensure CI gates are required by branch protection or a fail-closed merge controller.
+**Branch ownership matters:** the original verifier associates lane permissions with branch names of the form `<configured-lane>/<story>` (or `lead/<story>`). An arbitrary `codex/*` branch has no lane association and will not get the same lane-path enforcement. Use a branch with the configured lane prefix or mark lane ownership as unverified; an unrecognised prefix must not be counted as full policy compliance.\n\nNever run `verify` against an invented base or without a populated git history. `verify` checks tracked changes since the merge base and may list skipped checks: inspect `skipped` in JSON output and do not accept required skips. For pull requests, run it in a full checkout with base history available; inspect the current PR head and ensure CI gates are required by branch protection or a fail-closed merge controller.
 
 For ChatGPT without shell access, have it review `AGENTS.md`, inspect relevant source and GitHub results, and report any execution gate as unverified. For Codex with shell access, run the commands above instead of merely promising to follow the skill.
 
