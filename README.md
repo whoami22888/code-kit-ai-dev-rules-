@@ -17,7 +17,7 @@ In a downstream project with code-kit installed and an approved `.claude/code-ki
 ```bash
 code-kit-ai doctor --json
 code-kit-ai check --json
-code-kit-ai verify --base origin/main --branch YOUR_CURRENT_BRANCH --json
+code-kit-ai verify --base <verified-base-ref> --branch <actual-branch> --json
 ```
 
 `doctor` detects missing configuration instead of silently treating the project as governed. `check` and `verify` run the **existing** rules engine. Configure `ifMissing: "fail"` for every required check; otherwise the verifier can report that a check was not run. Require passing exact-head checks in CI and review skipped checks explicitly.
