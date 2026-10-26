@@ -28,7 +28,7 @@ The wrapper delegates all existing commands to `bin/code-kit.mjs`; `doctor` runs
 
 ## Using these rules in a project
 
-Copy the approved configuration template/setup from the existing code-kit documentation to `<project>/.claude/code-kit.json` and configure checks with `ifMissing: "fail"` for tools required in CI. Install or reference this package in the project and make the `code-kit-ai` command available. Keep a project-specific `AGENTS.md` and optionally copy this skill into `.agents/skills/code-kit-verification/`.
+For a Node project, start from [`templates/openai/node-project.code-kit.json`](../templates/openai/node-project.code-kit.json): copy it to `<project>/.claude/code-kit.json`, then tailor the exact lane paths and test commands before approving it. For other stacks, use the existing code-kit documentation to configure the same schema. Every mandatory check needs `ifMissing: "fail"`; the starter intentionally fails closed if `npm test` is unavailable. Install or reference this package in the project and make the `code-kit-ai` command available. Keep a project-specific `AGENTS.md` and optionally copy this skill into `.agents/skills/code-kit-verification/`.
 
 Then from the **project root**:
 
