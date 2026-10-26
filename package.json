@@ -38,7 +38,11 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
-    "SECURITY.md"
+    "SECURITY.md",
+    "scripts",
+    ".agents",
+    "docs/openai-integration.md",
+    "AGENTS.md"
   ],
   "engines": {
     "node": ">=22"
