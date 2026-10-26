@@ -81,6 +81,8 @@ test('shipped Node project starter is valid and requires missing checks to fail'
   assert.equal(template.version, 1);
   assert.ok(template.checks.length);
   assert.ok(template.checks.every((check) => check.ifMissing === 'fail'));
+  assert.deepEqual(template.checks.find((check) => check.name === 'node tests').files,
+    ['package.json', 'src/**', 'test/**']);
   const dir = mkdtempSync(join(tmpdir(), 'code-kit-openai-template-'));
   try {
     mkdirSync(join(dir, '.claude'));
