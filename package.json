@@ -1,7 +1,7 @@
 {
   "name": "@warren-dean/code-kit",
   "version": "0.26.1",
-  "description": "Keeps AI coding agents inside your project's rules: lanes, layer rules, protected paths and proof before finish, enforced by Claude Code hooks and in CI",
+  "description": "Shared AI engineering rules and CLI verification for ChatGPT, Codex and Claude Code",
   "license": "MIT",
   "author": "Warren Langeveldt",
   "type": "module",
@@ -17,10 +17,15 @@
     "ai-agents",
     "guardrails",
     "architecture",
-    "ci"
+    "ci",
+    "chatgpt",
+    "codex",
+    "agents-md",
+    "ai-development"
   ],
   "bin": {
-    "code-kit": "bin/code-kit.mjs"
+    "code-kit": "bin/code-kit.mjs",
+    "code-kit-ai": "bin/code-kit-ai.mjs"
   },
   "files": [
     "bin",
@@ -39,6 +44,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node --test test/units.test.mjs && node test/hooks.test.mjs && node test/mod.mjs"
+    "test": "node --test test/units.test.mjs && node --test test/openai-dev.test.mjs && node test/hooks.test.mjs && node test/mod.mjs",
+    "test:openai": "node --test test/openai-dev.test.mjs",
+    "agent:doctor:self": "node bin/code-kit-ai.mjs doctor --self"
   }
 }
