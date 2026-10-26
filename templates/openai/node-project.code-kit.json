@@ -33,6 +33,7 @@
     {
       "name": "node tests",
       "files": [
+        "package.json",
         "src/**",
         "test/**"
       ],
