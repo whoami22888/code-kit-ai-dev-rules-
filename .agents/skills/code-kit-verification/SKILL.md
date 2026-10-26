@@ -19,7 +19,7 @@ Use the project `AGENTS.md` and `docs/openai-integration.md` as instructions. Th
 
 ## On a code-kit source change
 
-Run `npm run agent:doctor:self`, `npm run test:openai`, `npm test` and `npx prettier --check .`. For behavior in Claude hooks, extend `test/hooks.test.mjs`. For portable entry points, extend `test/openai-dev.test.mjs`.
+Run `npm run agent:doctor:self`, `npm run test:openai`, `npm test` and `npx --yes prettier@3.9.10 --check .`. For behavior in Claude hooks, extend `test/hooks.test.mjs`. For portable entry points, extend `test/openai-dev.test.mjs`.
 
 ## Recovery
 
