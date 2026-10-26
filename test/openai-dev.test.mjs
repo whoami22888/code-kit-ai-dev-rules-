@@ -75,3 +75,22 @@ test('wrapper forwards the original code-kit CLI help and rejects unknown comman
   const invalid = run(entry, ['not-a-code-kit-command'], root);
   assert.notEqual(invalid.status, 0);
 });
+
+test('shipped Node project starter is valid and requires missing checks to fail', () => {
+  const template = JSON.parse(readFileSync(join(root, 'templates/openai/node-project.code-kit.json'), 'utf8'));
+  assert.equal(template.version, 1);
+  assert.ok(template.checks.length);
+  assert.ok(template.checks.every((check) => check.ifMissing === 'fail'));
+  const dir = mkdtempSync(join(tmpdir(), 'code-kit-openai-template-'));
+  try {
+    mkdirSync(join(dir, '.claude'));
+    writeFileSync(join(dir, 'AGENTS.md'), '# Rules\n');
+    writeFileSync(join(dir, '.claude/code-kit.json'), JSON.stringify(template));
+    assert.equal(spawnSync('git', ['init', '-q'], { cwd: dir }).status, 0);
+    const result = run(doctor, ['--json'], dir);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.equal(JSON.parse(result.stdout).ok, true);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
