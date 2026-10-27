@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "lead": {
+    "paths": [
+      "AGENTS.md",
+      "docs/**",
+      ".github/**",
+      "package.json"
+    ]
+  },
+  "lanes": {
+    "app": {
+      "agent": "app-developer",
+      "paths": [
+        "src/**"
+      ]
+    },
+    "qa": {
+      "agent": "test-engineer",
+      "paths": [
+        "test/**"
+      ]
+    }
+  },
+  "protected": [
+    {
+      "glob": "AGENTS.md",
+      "approval": "kit",
+      "why": "instructions governing all AI development"
+    }
+  ],
+  "checks": [
+    {
+      "name": "node tests",
+      "files": [
+        "package.json",
+        "src/**",
+        "test/**"
+      ],
+      "run": [
+        "npm test"
+      ],
+      "ifMissing": "fail"
+    }
+  ],
+  "tests": [
+    "test/**"
+  ],
+  "branches": {
+    "protected": [
+      "main",
+      "master"
+    ]
+  },
+  "approvals": {
+    "delegate": false
+  }
+}

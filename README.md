@@ -1,3 +1,35 @@
+# Code Kit AI — developer rules for ChatGPT and Codex
+
+This maintained fork adds a portable **ChatGPT / Codex integration** to Warren Langeveldt's MIT-licensed [code-kit](https://github.com/warrendeanlangeveldt/code-kit). It preserves the original Node.js rules engine, CLI, Claude Code hooks and detailed manual below. The core policy remains in `.claude/code-kit.json`: OpenAI-facing instructions do **not** replace executable verification.
+
+## OpenAI quick start
+
+Requirements: Node.js **22+**, git, and a checkout of this repository.
+
+```bash
+node bin/code-kit-ai.mjs doctor --self --json
+npm run test:openai
+npm test
+```
+
+In a downstream project with code-kit installed and an approved `.claude/code-kit.json`, place the project-specific rules in `AGENTS.md` and use:
+
+```bash
+code-kit-ai doctor --json
+code-kit-ai check --json
+code-kit-ai verify --base <verified-base-ref> --branch <actual-branch> --json
+```
+
+`doctor` detects missing configuration instead of silently treating the project as governed. `check` and `verify` run the **existing** rules engine. Configure `ifMissing: "fail"` for every required check; otherwise the verifier can report that a check was not run. Require passing exact-head checks in CI and review skipped checks explicitly.
+
+**Codex:** use root `AGENTS.md` and `.agents/skills/code-kit-verification/SKILL.md`, and execute the CLI from a shell-enabled Codex environment. **ChatGPT:** use those same checked-in instructions with connected source/PR access; run the CLI only when a shell-enabled environment is available. Neither automatically gains Claude's pre-tool blocking hooks.
+
+**Integration guide:** [docs/openai-integration.md](docs/openai-integration.md) · **Repository rules:** [AGENTS.md](AGENTS.md) · **Security model:** [SECURITY.md](SECURITY.md) · **Verification skill:** [.agents/skills/code-kit-verification/SKILL.md](.agents/skills/code-kit-verification/SKILL.md).
+
+The adaptation is deliberately non-breaking. Additional OpenAI-native orchestration/approvals are future work, not features claimed as shipped.
+
+---
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/warrendeanlangeveldt/code-kit/main/assets/logo-dark.png">
@@ -5,7 +37,7 @@
   </picture>
 </p>
 
-# code-kit
+# code-kit — original Claude Code plugin guide
 
 A Claude Code plugin that keeps AI coding agents inside a project's engineering rules. You write the rules once, per project, in `.claude/code-kit.json`. The plugin's hooks check them on every file edit, shell command and finish, for the main session and every subagent. A rule Claude would otherwise only be _asked_ to follow becomes one a hook refuses to let it break, or, for shell commands, reports straight after for the agent to undo. `code-kit verify` runs the same rules on a branch, in review and in CI.
 
