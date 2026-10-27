@@ -10,8 +10,11 @@ const asJson = args.has('--json');
 const self = args.has('--self');
 const root = process.cwd();
 const checks = [];
+/** Append a diagnostic result to the report and return the new number of checks. */
 const add = (name, status, detail) => checks.push({ name, status, detail });
+/** Resolve a path from the invocation directory; absolute paths override that directory. */
 const path = (rel) => resolve(root, rel);
+/** Return whether a diagnostic path exists, resolving it from the invocation directory. */
 const has = (rel) => existsSync(path(rel));
 
 const nodeMajor = Number(process.versions.node.split('.')[0]);
